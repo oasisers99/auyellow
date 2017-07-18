@@ -7,7 +7,7 @@ names = ''
 count = 0
 
 #read json file and how number of records
-with open('../massage.json', 'r') as f:
+with open('../spiders/medical.json', 'r') as f:
 	for item in json_lines.reader(f):
 		names += item['text']
 		count += 1
@@ -17,8 +17,8 @@ print('total names:', count)
 #change them to lower case
 names = names.lower()
 
-#remove stopwords 
-stopWords = ['and', 'of', 'the', 'pty', 'ltd', 'in','to']
+#remove stopwords
+stopWords = ['and', 'of', 'the', 'pty', 'ltd', 'in', 'to', 'australia', 'a', 'on', 'for']
 specChars = [',', '&', '-']
 for eachStop in stopWords:
 	names = re.sub(r'\b' + eachStop + r'\b', ' ', names)
