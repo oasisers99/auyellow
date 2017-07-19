@@ -1,22 +1,34 @@
 import scrapy
+import csv
 
-#scrapy crawl yellow -o medical.json -t jsonlines
+#######################  Category & Region ##############################
+# location also can be city or suburb
+category = "childcare"
+location = "australia"
+##########################################################################
+
 class YellowSpider(scrapy.Spider):
 
     #scraper info
+    global category
+    global location
+
     name = "yellow"
     start_urls = [
-        'https://www.yellowpages.com.au/search/listings?clue=petcare&locationClue=australia',
+        'https://www.yellowpages.com.au/search/listings?clue='+category+'&locationClue='+location,
     ]
 
     # start parsing!
     def parse(self, response):
+
+        global category
 
         # Target the main list that does not have ads. Parse details of each business
         for yellow in response.xpath("//div[@class='cell in-area-cell middle-cell']"):
             
             name = yellow.xpath(".//a[@class='listing-name']/text()").extract_first()
             address = yellow.xpath(".//p[@class='listing-address mappable-address' or @class='listing-address mappable-address mappable-address-with-poi']/text()").extract_first()
+            address = str(address).replace(',' , '')
             suburb_state = yellow.xpath(".//p[@class='listing-address mappable-address' or @class='listing-address mappable-address mappable-address-with-poi']/@data-address-suburb").extract_first()
             latitude = yellow.xpath(".//p[@class='listing-address mappable-address' or @class='listing-address mappable-address mappable-address-with-poi']/@data-geo-latitude").extract_first()
             longitude = yellow.xpath(".//p[@class='listing-address mappable-address' or @class='listing-address mappable-address mappable-address-with-poi']/@data-geo-longitude").extract_first()
@@ -37,7 +49,7 @@ class YellowSpider(scrapy.Spider):
             postcode = slist[len(slist) - 1]
 
             yield {
-                'category': 'petcare',
+                'category': category,
                 'name': name,
                 'address': address,
                 'suburb': suburb,
@@ -46,13 +58,36 @@ class YellowSpider(scrapy.Spider):
                 'lat': latitude,
                 'long': longitude,
                 'website': website,
-                'phone': phone,
+                'phone': phone
             }
+
+            # write_to_csv(item)
 
 
         # Target the 'next' page link.
         next_page = response.xpath("//a[@class='pagination navigation'][last()]/@href").extract_first()
+        
+        if next_page is None:
+            removeEmptyLines()
+
         if next_page is not None:
             next_page = response.urljoin(next_page)
             yield scrapy.Request(next_page, callback=self.parse)
+        
 
+
+    def removeEmptyLines():
+
+        resultlist = []
+        input = open('../spiders/result.csv', 'r')
+
+        for row in csv.reader(input):
+            if row:
+                # print(row)
+                resultlist.append(row)
+
+        with open('../spiders/result_noblank.csv', 'w', newline = '') as myfile:
+            wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
+            wr.writerows(resultlist)
+
+        input.close()
