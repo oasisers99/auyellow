@@ -23,12 +23,14 @@ csv format
 xpath tester:
 http://videlibri.sourceforge.net/cgi-bin/xidelcgi
 
-#scrapy crawl yellow -o result.json -t jsonlines
-#scrapy crawl yellow -t csv -o result.csv 
-
 **Don't use it**
 **To get most frequent words**:
 1. Go to /auyellow/yellowscrapper/process
 2. Run: python jsonparser.py
    - You can also run it on your IDE.
    - Please add or remove stop words in jsonparser.py as you like.
+
+Execution command samples:
+scrapy crawl yellow -o result.json -t jsonlines
+scrapy crawl yellow -t csv -o result.csv 
+scrapy crawl yellow -t xml -o result.csv 

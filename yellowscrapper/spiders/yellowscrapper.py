@@ -61,33 +61,10 @@ class YellowSpider(scrapy.Spider):
                 'phone': phone
             }
 
-            # write_to_csv(item)
-
-
         # Target the 'next' page link.
         next_page = response.xpath("//a[@class='pagination navigation'][last()]/@href").extract_first()
-        
-        if next_page is None:
-            removeEmptyLines()
 
         if next_page is not None:
             next_page = response.urljoin(next_page)
             yield scrapy.Request(next_page, callback=self.parse)
         
-
-
-    def removeEmptyLines():
-
-        resultlist = []
-        input = open('../spiders/result.csv', 'r')
-
-        for row in csv.reader(input):
-            if row:
-                # print(row)
-                resultlist.append(row)
-
-        with open('../spiders/result_noblank.csv', 'w', newline = '') as myfile:
-            wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
-            wr.writerows(resultlist)
-
-        input.close()
